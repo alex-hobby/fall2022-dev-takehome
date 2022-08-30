@@ -1,22 +1,10 @@
-import React from 'react'
-/**
- * Thank you for applying to Bits of Good. You are free to add/delete/modify any 
- * parts of this project. That includes changing the types.ts, creating css files, 
- * modifying import statements, using contexts, etc. We do recommend to keep it simple. 
- * You will not be judged based on complexity. We also recommend using 
- * multiple components instead of coding everything on this file :)
- * 
- * Have fun! Please reach out to hello@bitsofgood.org or amz@gatech.edu if you
- * have any questions!
- * 
- * Bits of Good Engineering Team
- * 
- */
-// TODO: Start coding from here
+import '../App.css'
+import { useEffect, useState } from 'react'
+import TodoCard from './TodoCard'
+import TodoForm from './TodoForm'
+import SortCard from './SortCard'
 
-// Here's a baseline todo item type. 
-// Feel free to extend or create your own interface!
-export type TodoItem = {
+export interface ITodoItem {
   title: string,
   dueDate: Date,
   tagList: string[],
@@ -24,9 +12,44 @@ export type TodoItem = {
 }
 
 export default function TodoList() {
+  const [todos, setTodos] = useState<ITodoItem[]>([])
+  const [refresh, setRefresh] = useState<boolean>(false)
+
+  useEffect(() => {
+    setRefresh(false)
+  }, [refresh])
+
+  const updateTodos = (todo: ITodoItem) => {
+    setTodos([...todos, todo])
+  }
+
+  const sortByCompleted = () => {
+    setTodos(todos.sort(function(a, b) {
+      return Number(a.completed) - Number(b.completed)
+    }))
+    setRefresh(true)
+  }
+
+  const sortByDate = () => {
+    setTodos(todos.sort(function(a, b) {
+      return a.dueDate.getTime() - b.dueDate.getTime()
+    }))
+    setRefresh(true)
+  }
+
+  const toggleTodo = (todo: ITodoItem) => {
+    todo.completed = !todo.completed
+  }
+
   return (
     <div>
-      <h3>Todo List!</h3>
+      <TodoForm updateTodos={updateTodos}/>
+      <SortCard sortByCompleted={sortByCompleted} sortByDate={sortByDate} />
+      <div>
+        {todos.map((todo, index) => {
+          return <TodoCard key={index} todo={todo} toggleTodo={toggleTodo}/>
+        })}
+      </div>
     </div>
   )
 }
